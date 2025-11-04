@@ -15,6 +15,7 @@ import {
 } from 'react-icons/fa';
 import { IoSparkles } from 'react-icons/io5';
 import logo from './assets/educourse-logo.png';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 function EmailForm() {
   const [formData, setFormData] = useState({
@@ -48,12 +49,38 @@ function EmailForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulasi pengiriman email
-    setTimeout(() => {
-      setIsSubmitted(true);
-      setFormData({ name: '', email: '', message: '' });
+    // SweetAlert konfirmasi sebelum mengirim
+    const result = await Swal.fire({
+      title: 'Kirim Pesan?',
+      text: "Apakah Anda yakin ingin mengirim pesan ini?",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#00adb5',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Ya, Kirim!',
+      cancelButtonText: 'Batal',
+      reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
+      // Simulasi pengiriman email
+      setTimeout(() => {
+        setIsSubmitted(true);
+        setFormData({ name: '', email: '', message: '' });
+        setIsSubmitting(false);
+        
+        // SweetAlert sukses
+        Swal.fire({
+          title: 'Berhasil!',
+          text: 'Pesan Anda telah berhasil dikirim. Tim kami akan merespons secepatnya.',
+          icon: 'success',
+          confirmButtonColor: '#00adb5',
+          confirmButtonText: 'Mengerti'
+        });
+      }, 2000);
+    } else {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   const scrollToSection = (sectionId) => {
