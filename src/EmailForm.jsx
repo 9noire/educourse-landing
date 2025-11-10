@@ -15,7 +15,8 @@ import {
 } from 'react-icons/fa';
 import { IoSparkles } from 'react-icons/io5';
 import logo from './assets/educourse-logo.png';
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2';
+import emailjs from 'emailjs-com';
 
 function EmailForm() {
   const [formData, setFormData] = useState({
@@ -23,12 +24,16 @@ function EmailForm() {
     email: '',
     message: ''
   });
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  // === INISIALISASI EMAILJS SEKALI ===
   useEffect(() => {
+    emailjs.init('GqvXVgqnBiCvcfedu'); // Public Key
+
     const handleScroll = () => {
       const isScrolled = window.scrollY > 50;
       setScrolled(isScrolled);
@@ -49,7 +54,6 @@ function EmailForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // SweetAlert konfirmasi sebelum mengirim
     const result = await Swal.fire({
       title: 'Kirim Pesan?',
       text: "Apakah Anda yakin ingin mengirim pesan ini?",
@@ -63,13 +67,25 @@ function EmailForm() {
     });
 
     if (result.isConfirmed) {
-      // Simulasi pengiriman email
-      setTimeout(() => {
+      try {
+        const serviceID = 'service_djr7ui1';
+        const templateID = 'template_b771gyo';
+
+        const response = await emailjs.send(
+          serviceID,
+          templateID,
+          {
+            name: formData.name,
+            email: formData.email,
+            message: formData.message
+          }
+        );
+
+        console.log('SUCCESS!', response.status, response.text);
+        
         setIsSubmitted(true);
         setFormData({ name: '', email: '', message: '' });
-        setIsSubmitting(false);
-        
-        // SweetAlert sukses
+
         Swal.fire({
           title: 'Berhasil!',
           text: 'Pesan Anda telah berhasil dikirim. Tim kami akan merespons secepatnya.',
@@ -77,10 +93,20 @@ function EmailForm() {
           confirmButtonColor: '#00adb5',
           confirmButtonText: 'Mengerti'
         });
-      }, 2000);
-    } else {
-      setIsSubmitting(false);
+      } catch (err) {
+        console.error('FAILED...', err);
+        
+        Swal.fire({
+          title: 'Gagal!',
+          text: 'Terjadi kesalahan saat mengirim pesan. Silakan coba lagi.',
+          icon: 'error',
+          confirmButtonColor: '#d33',
+          confirmButtonText: 'Mengerti'
+        });
+      }
     }
+    
+    setIsSubmitting(false);
   };
 
   const scrollToSection = (sectionId) => {
@@ -110,19 +136,15 @@ function EmailForm() {
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-6">
               <button 
-                onClick={() => {
-                  window.location.href = '/#home';
-                }}
-                className={`font-medium transition-all duration-300 hover:scale-105 ${
+                onClick={() => scrollToSection('home')}
+                className={`font-medium transition-all duration--300 hover:scale-105 ${
                   scrolled ? 'text-gray-600 hover:text-[#00adb5]' : 'text-white/90 hover:text-white'
                 }`}
               >
                 Home
               </button>
               <button 
-                onClick={() => {
-                  window.location.href = '/#about';
-                }}
+                onClick={() => scrollToSection('about')}
                 className={`font-medium transition-all duration-300 hover:scale-105 ${
                   scrolled ? 'text-gray-600 hover:text-[#00adb5]' : 'text-white/90 hover:text-white'
                 }`}
@@ -130,9 +152,7 @@ function EmailForm() {
                 Program
               </button>
               <button 
-                onClick={() => {
-                  window.location.href = '/#benefits';
-                }}
+                onClick={() => scrollToSection('benefits')}
                 className={`font-medium transition-all duration-300 hover:scale-105 ${
                   scrolled ? 'text-gray-600 hover:text-[#00adb5]' : 'text-white/90 hover:text-white'
                 }`}
@@ -167,10 +187,7 @@ function EmailForm() {
             }`}>
               <div className="flex flex-col space-y-4">
                 <button 
-                  onClick={() => {
-                    window.location.href = '/#home';
-                    setIsMenuOpen(false);
-                  }}
+                  onClick={() => scrollToSection('home')}
                   className={`text-left py-2 transition-colors duration-300 ${
                     scrolled ? 'text-gray-800 hover:text-[#00adb5]' : 'text-white hover:text-[#ffcb00]'
                   }`}
@@ -178,10 +195,7 @@ function EmailForm() {
                   Home
                 </button>
                 <button 
-                  onClick={() => {
-                    window.location.href = '/#about';
-                    setIsMenuOpen(false);
-                  }}
+                  onClick={() => scrollToSection('about')}
                   className={`text-left py-2 transition-colors duration-300 ${
                     scrolled ? 'text-gray-800 hover:text-[#00adb5]' : 'text-white hover:text-[#ffcb00]'
                   }`}
@@ -189,10 +203,7 @@ function EmailForm() {
                   Program
                 </button>
                 <button 
-                  onClick={() => {
-                    window.location.href = '/#benefits';
-                    setIsMenuOpen(false);
-                  }}
+                  onClick={() => scrollToSection('benefits')}
                   className={`text-left py-2 transition-colors duration-300 ${
                     scrolled ? 'text-gray-800 hover:text-[#00adb5]' : 'text-white hover:text-[#ffcb00]'
                   }`}
@@ -239,7 +250,7 @@ function EmailForm() {
             
             {isSubmitted ? (
               <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-                <div className="text-4xl mb-4 text-green-500">🎉</div>
+                <div className="text-4xl mb-4 text-green-500">Berhasil</div>
                 <h3 className="text-xl font-bold text-green-800 mb-2">Pesan Terkirim!</h3>
                 <p className="text-green-700">
                   Terima kasih telah menghubungi kami. Tim Educourse akan merespons pesan Anda secepatnya.
@@ -436,7 +447,6 @@ function EmailForm() {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -452,7 +462,7 @@ function EmailForm() {
             />
           </div>
           <p className="text-lg mb-2">
-            ❤️ Siap membantu masa depan anak Indonesia lebih cerah!
+            Siap membantu masa depan anak Indonesia lebih cerah!
           </p>
           <p className="text-sm opacity-90">
             &copy; 2025 Educourse.id. All rights reserved. | Platform STEM Terbesar & Termurah
